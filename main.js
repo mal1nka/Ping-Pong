@@ -41,7 +41,6 @@ Ball.prototype.draw = function() {
 	this.canvasContext.stroke();
 };
 
-
 function Game(height, width) {
 	this.height = height;
 	this.width = width;
@@ -123,8 +122,6 @@ Game.prototype = {
             player.y = player.y+direction*this.speedPlayers;
         }
         this.drawGame();
-
-
     },
 
 
