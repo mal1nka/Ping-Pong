@@ -6,4 +6,3 @@ Canvas-game ping-pong
 OOP-example
 
 
-test
