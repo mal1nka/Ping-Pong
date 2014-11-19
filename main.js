@@ -66,7 +66,7 @@ Game.prototype = {
 
 		this.playerLeft.scores = 0;
 		this.playerRight.scores = 0;
-        this.speedPlayers = 10;
+        this.speedPlayers = 20;
 		this.ball = new Ball("#fff" , 40, this.game.height / 2 - 10, 10, this.context);
 
         this.ball.vX = 2;
