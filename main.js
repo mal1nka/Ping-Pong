@@ -54,13 +54,15 @@ Game.prototype = {
 		canvas.height = this.height;
 		this.context = canvas.getContext('2d');
 		this.initGameObjects();
-		this.drawGame();
+        canvas.onmousemove = this.playerMove;
+        this.play()
+        //setInterval(this.play, 1000 / 50);
+		//this.drawGame();
 		
 	},
 	initGameObjects: function() {
 	// объект который задаёт игровое поле
 		this.game = new Rectangle("#000", 0 , 0 , this.width, this.height, this.context);
-		console.log (this.game )
 	// Ракетки-игроки	
 		this.ai = new Rectangle("#fff", 10, this.game.height / 2 - 40, 20, 80, this.context);
 		this.player = new Rectangle("#fff", this.game.width - 30, this.game.height / 2 - 40, 20, 80, this.context);
@@ -69,31 +71,51 @@ Game.prototype = {
 		this.player.scores = 0;
 	 // наш квадратный игровой "шарик"
 		this.ball = new Ball("#fff" , 40, this.game.height / 2 - 10, 10, this.context);
-		
+	// скорость шарика
+        this.ball.vX = 2; // скорость по оси х
+        this.ball.vY = 2; // скорость по оси у
+
+
 	},
-	
 	drawGame: function() {
 		this.game.draw(); // рисуем игровое поле
 		// рисуем на поле счёт
 		this.context.font = 'bold 128px courier';
 		this.context.textAlign = 'center';
 		this.context.textBaseline = 'top';
-		this.context.fillStyle = '#ccc'; 
-		//this.context.fillText(this.ai.scores, 100, 0); //context.fillText(text,x,y,maxWidth);
+		this.context.fillStyle = '#ccc';
 		TextFactory.drawText(this.context, this.ai.scores, 100, 0);
 		TextFactory.drawText(this.context, this.player.scores, this.game.width-100, 0); 
 		for (var i = 25; i < this.game.height; i += 45) // линия разделяющая игровое поле на две части
 		   {
-				/*this.context.fillStyle = "#ccc";
-				this.context.fillRect(this.game.width/2 - 10, i, 20, 30);*/
 				var dot = new Ball("#ccc", this.game.width/2 - 10, i, 10, this.context);
 				dot.draw();
 			}
-	
-		this.ai.draw();
-		this.player.draw();
-		this.ball.draw();
-	}
+		this.ai.draw(); // рисуем левого игрока
+		this.player.draw();// правого игрока
+		this.ball.draw();// шарик
+	},
+
+    playerMove: function (e) {
+        var y = e.pageY;
+        if (this.player.height / 2 + 10 < y && y < this.game.height - this.player.height / 2 - 10) {
+            this.player.y = y - this.player.height / 2;
+        }
+    },
+
+    // Изменения которые нужно произвести
+    update: function () {
+        // меняем координаты шарика
+        this.ball.x += this.ball.vX;
+        this.ball.y += this.ball.vY;
+
+    },
+
+    play: function() {
+        this.drawGame(); // отрисовываем всё на холсте
+        this.update(); // обновляем координаты
+    }
+
 };
 
 function TextFactory() {
