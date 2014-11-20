@@ -1,5 +1,4 @@
-﻿﻿
-function Base(color, x, y, canvasContext) {
+﻿function Base(color, x, y, canvasContext) {
     this.x = x;
     this.y = y;
     this.color = color;
@@ -61,11 +60,14 @@ Game.prototype = {
     initGameObjects: function () {
         this.game = new Rectangle("#000", 0, 0, this.width, this.height, this.context);
         this.leftPlayer = new Rectangle("#fff", 10, this.game.height / 2 - 40, 20, 80, this.context);
+        console.log (this.leftPlayer );
         this.rightPlayer = new Rectangle("#fff", this.game.width - 30, this.game.height / 2 - 40, 20, 80, this.context);
         this.leftPlayer.scores = 0;
         this.rightPlayer.scores = 0;
         this.ball = new Ball("#fff", 40, this.game.height / 2, 10, this.context);
-        this.ball.step = 2;
+        console.log (this.ball );
+        this.ball.stepX = 2;
+        this.ball.stepY = 2;
     },
     setupEventListener: function () {
         document.body.onkeydown = this.startPlayerMove.bind(this);
@@ -103,13 +105,63 @@ Game.prototype = {
     },
 
     updateBallCords: function () {
-        this.ball.x += this.ball.step;
-        this.ball.y += this.ball.step;
+        // Move to y
+        if (this.ball.y - this.ball.radius <= 0 || this.ball.y+this.ball.radius >= this.game.height) {
+            this.ball.stepY= -this.ball.stepY;
+        }
+
+        // Move to x
+        if (this.ball.x-this.ball.radius <= 0) {
+            this.rightPlayer.scores ++;
+            this.startNewRound(this.leftPlayer);
+        }
+        if (this.ball.x+this.ball.radius >= this.game.width) {
+            this.leftPlayer.scores ++;
+            this.startNewRound(this.rightPlayer);
+        }
+
+        //collision with player
+        if ( (this.collision(this.leftPlayer, this.ball)&& this.ball.stepX <0 )  || (this.collision(this.rightPlayer, this.ball)&& this.ball.stepX>0 )  ) {
+            this.ball.stepX = -this.ball.stepX;
+        }
+
+        this.ball.x += this.ball.stepX;
+        this.ball.y += this.ball.stepY;
+
     },
 
     play: function () {
         this.drawGame(); // отрисовываем всё на холсте
         this.updateBallCords(); // обновляем координаты
+    },
+
+    collision: function(barrier, ball) {
+        if (barrier.x+barrier.width > ball.x-ball.radius &&
+            barrier.x <  ball.x + ball.radius &&
+            barrier.y+barrier.height > ball.y-ball.radius &&
+            barrier.y <  ball.y + ball.radius) {
+            return true
+        }
+        else {
+            return false
+        }
+    },
+
+    startNewRound: function (loserPlayer){
+        this.leftPlayer.y = this.game.height / 2 - 40;
+        this.rightPlayer.y = this.game.height / 2 - 40;
+        this.ball.y = this.game.height / 2;
+            if (loserPlayer == this.leftPlayer) {
+            this.ball.x = 40;
+            this.ball.y = this.game.height / 2;
+            this.ball.stepX=2;
+            this.ball.stepY=2;
+        }
+        else {
+                this.ball.x = this.game.width - 40;
+                this.ball.stepX=-2;
+                this.ball.stepY=-2;
+            }
     }
 
 };
