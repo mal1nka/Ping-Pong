@@ -53,51 +53,27 @@ Game.prototype = {
 		canvas.height = this.height;
 		this.context = canvas.getContext('2d');
 		this.initGameObjects();
+        //this.drawGame();
         this.setupEventListener();
-        this.drawGame();
-        //this.update()
-
+        setInterval (this.play.bind(this), 20);
 	},
 	initGameObjects: function() {
 		this.game = new Rectangle("#000", 0 , 0 , this.width, this.height, this.context);
 		this.playerLeft = new Rectangle("#fff", 10, this.game.height / 2 - 40, 20, 80, this.context);
 		this.playerRight = new Rectangle("#fff", this.game.width - 30, this.game.height / 2 - 40, 20, 80, this.context);
-        console.log (this.playerRight)
-
 		this.playerLeft.scores = 0;
 		this.playerRight.scores = 0;
-        this.speedPlayers = 20;
-		this.ball = new Ball("#fff" , 40, this.game.height / 2 - 10, 10, this.context);
-
+        this.speedPlayers = 40;
+		this.ball = new Ball("#fff" , 40, this.game.height / 2, 10, this.context);
         this.ball.vX = 2;
         this.ball.vY = 2;
 	},
     setupEventListener: function (){
-        document.body.onkeydown = function (e) {
-            var player;
-            var direction;
-            switch (e.keyCode) {
-                case 38:
-                    player= this.playerRight;
-                    direction=-1;
-                    break;
-                case 40:
-                    player=this.playerRight;
-                    direction=1;
-                    break;
-                case 87:
-                    player=this.playerLeft;
-                    direction=-1;
-                    break;
-                case 83:
-                    player=this.playerLeft;
-                    direction=1;
-                    break;
-                default: return
-            }
-            this.startPlayerMove(direction, player)
-        }.bind(this)
+        document.body.onkeypress= this.startPlayerMove.bind(this);
+        //document.body.onkeyup = this.startPlayerMove.bind(this);
+
     },
+
 	drawGame: function() {
 		this.game.draw();
 		this.context.font = 'bold 128px courier';
@@ -117,18 +93,42 @@ Game.prototype = {
 
 	},
 
-    startPlayerMove: function (direction, player) {
+    startPlayerMove: function (e) {
+        var player;
+        var direction;
+        switch (e.keyCode) {
+            case 38:
+                player= this.playerRight;
+                direction=-1;
+                break;
+            case 40:
+                player=this.playerRight;
+                direction=1;
+                break;
+            case 119:
+                player=this.playerLeft;
+                direction=-1;
+                break;
+            case 115:
+                player=this.playerLeft;
+                direction=1;
+                break;
+            default: return
+        }
         if (player.y > 0 && direction == -1 || player.y + player.height < this.game.height && direction==1) {
             player.y = player.y+direction*this.speedPlayers;
         }
         this.drawGame();
     },
 
-
     update: function () {
         this.ball.x += this.ball.vX;
         this.ball.y += this.ball.vY;
+    },
 
+    play: function () {
+        this.drawGame(); // отрисовываем всё на холсте
+        this.update(); // обновляем координаты
     }
 
 };
