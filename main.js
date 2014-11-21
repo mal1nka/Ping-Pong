@@ -47,7 +47,9 @@ function Game(height, width) {
 }
 Game.prototype = {
     playerMoveStep: 40,
-    refreshSequence: 20,
+    refreshSequence: 10,
+    beginBallX : 40,
+    heightPlayer : 80,
     init: function () {
         var canvas = document.getElementById("pong");
         canvas.width = this.width;
@@ -59,15 +61,16 @@ Game.prototype = {
     },
     initGameObjects: function () {
         this.game = new Rectangle("#000", 0, 0, this.width, this.height, this.context);
-        this.leftPlayer = new Rectangle("#fff", 10, this.game.height / 2 - 40, 20, 80, this.context);
+        this.leftPlayer = new Rectangle("#fff", 10, this.game.height / 2 -  this.heightPlayer/2, 20, this.heightPlayer, this.context);
         console.log (this.leftPlayer );
-        this.rightPlayer = new Rectangle("#fff", this.game.width - 30, this.game.height / 2 - 40, 20, 80, this.context);
+        this.rightPlayer = new Rectangle("#fff", this.game.width - 30, this.game.height / 2 -  this.heightPlayer/2, 20, this.heightPlayer, this.context);
         this.leftPlayer.scores = 0;
         this.rightPlayer.scores = 0;
-        this.ball = new Ball("#fff", 40, this.game.height / 2, 10, this.context);
+        this.ball = new Ball("#fff", this.beginBallX, this.game.height / 2, 10, this.context);
         console.log (this.ball );
-        this.ball.stepX = 2;
-        this.ball.stepY = 2;
+        this.ball.stepSpeed = 2;
+        this.ball.stepX = this.ball.stepSpeed;
+        this.ball.stepY = this.ball.stepSpeed;
     },
     setupEventListener: function () {
         document.body.onkeydown = this.startPlayerMove.bind(this);
@@ -77,10 +80,10 @@ Game.prototype = {
 
     drawGame: function () {
         this.game.draw();
-        this.context.font = 'bold 128px courier';
+        TextFactory.setFont(this.context, 'bold 128px courier');
         this.context.textAlign = 'center';
         this.context.textBaseline = 'top';
-        this.context.fillStyle = '#ccc';
+        this.context.fillStyle = 'red';
         TextFactory.drawText(this.context, this.leftPlayer.scores, 100, 0);
         TextFactory.drawText(this.context, this.rightPlayer.scores, this.game.width - 100, 0);
         for (var i = 25; i < this.game.height; i += 45) {
@@ -136,34 +139,25 @@ Game.prototype = {
     },
 
     collision: function(barrier, ball) {
-        if (barrier.x+barrier.width > ball.x-ball.radius &&
+        return barrier.x+barrier.width > ball.x-ball.radius &&
             barrier.x <  ball.x + ball.radius &&
             barrier.y+barrier.height > ball.y-ball.radius &&
-            barrier.y <  ball.y + ball.radius) {
-            return true
-        }
-        else {
-            return false
-        }
+            barrier.y <  ball.y + ball.radius
     },
 
     startNewRound: function (loserPlayer){
-        this.leftPlayer.y = this.game.height / 2 - 40;
-        this.rightPlayer.y = this.game.height / 2 - 40;
+        this.leftPlayer.y = this.rightPlayer.y= this.game.height / 2 -  this.heightPlayer/2;
         this.ball.y = this.game.height / 2;
-            if (loserPlayer == this.leftPlayer) {
-            this.ball.x = 40;
+        if (loserPlayer == this.leftPlayer) {
+            this.ball.x = this.beginBallX;
             this.ball.y = this.game.height / 2;
-            this.ball.stepX=2;
-            this.ball.stepY=2;
+            this.ball.stepX=this.ball.stepY=this.ball.stepSpeed;
         }
         else {
-                this.ball.x = this.game.width - 40;
-                this.ball.stepX=-2;
-                this.ball.stepY=-2;
-            }
+            this.ball.x = this.game.width - this.beginBallX;
+            this.ball.stepX=this.ball.stepY=-this.ball.stepSpeed;
+        }
     }
-
 };
 
 function TextFactory() {
@@ -173,6 +167,10 @@ function TextFactory() {
 TextFactory.drawText = function (context, textValue, x, y) {
     context.fillText(textValue, x, y);
 };
+
+TextFactory.setFont = function(context, value) {
+    context.font = value;
+}
 
 
 
