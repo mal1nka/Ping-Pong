@@ -46,10 +46,14 @@ function Game(height, width) {
     this.init();
 }
 Game.prototype = {
-    playerMoveStep: 40,
+    playerStepFactor: 12, // the larger the factor - the smaller step
+    playerIndentX: 10,
+    playerWidth : 20,
+    playerHeight : 80,
     refreshSequence: 10,
+    ballRadius: 10,
     beginBallX : 40,
-    heightPlayer : 80,
+
     init: function () {
         var canvas = document.getElementById("pong");
         canvas.width = this.width;
@@ -61,19 +65,20 @@ Game.prototype = {
     },
     initGameObjects: function () {
         this.game = new Rectangle("#000", 0, 0, this.width, this.height, this.context);
-        this.leftPlayer = new Rectangle("#fff", 10, this.game.height / 2 -  this.heightPlayer/2, 20, this.heightPlayer, this.context);
+        this.playerMoveStep = this.game.height/this.playerStepFactor;
+        this.leftPlayer = new Rectangle("#fff", this.playerIndentX, this.game.height / 2 -  this.playerHeight/2, this.playerWidth, this.playerHeight, this.context);
         console.log (this.leftPlayer );
-        this.rightPlayer = new Rectangle("#fff", this.game.width - 30, this.game.height / 2 -  this.heightPlayer/2, 20, this.heightPlayer, this.context);
+        this.rightPlayer = new Rectangle("#fff", this.game.width -this.playerIndentX- this.playerWidth, this.game.height / 2 -  this.playerHeight/2, this.playerWidth, this.playerHeight, this.context);
         this.leftPlayer.scores = 0;
         this.rightPlayer.scores = 0;
-        this.ball = new Ball("#fff", this.beginBallX, this.game.height / 2, 10, this.context);
+        this.ball = new Ball("#fff", this.beginBallX, this.game.height / 2, this.ballRadius, this.context);
         console.log (this.ball );
         this.ball.stepSpeed = 2;
         this.ball.stepX = this.ball.stepSpeed;
         this.ball.stepY = this.ball.stepSpeed;
     },
     setupEventListener: function () {
-        document.body.onkeydown = this.startPlayerMove.bind(this);
+        document.body.onkeypress = this.startPlayerMove.bind(this);
         //document.body.onkeyup = this.startPlayerMove.bind(this);
 
     },
@@ -81,13 +86,13 @@ Game.prototype = {
     drawGame: function () {
         this.game.draw();
         TextFactory.setFont(this.context, 'bold 128px courier');
-        this.context.textAlign = 'center';
-        this.context.textBaseline = 'top';
-        this.context.fillStyle = 'red';
+        TextFactory.setTextAlign(this.context,'center');
+        TextFactory.setVerticalAlign(this.context, 'top');
+        TextFactory.setColor(this.context, 'red');
         TextFactory.drawText(this.context, this.leftPlayer.scores, 100, 0);
         TextFactory.drawText(this.context, this.rightPlayer.scores, this.game.width - 100, 0);
         for (var i = 25; i < this.game.height; i += 45) {
-            var dot = new Ball("#ccc", this.game.width / 2 - 10, i, 10, this.context);
+            var dot = new Ball("#ccc", this.game.width / 2, i, 10, this.context);
             dot.draw();
         }
         this.leftPlayer.draw();
@@ -97,8 +102,8 @@ Game.prototype = {
     },
 
     startPlayerMove: function (e) {
-        var currentPlayer = e.keyCode==38||e.keyCode==40? this.rightPlayer : e.keyCode==87||e.keyCode==83? this.leftPlayer : false;
-        var direction = e.keyCode==38||e.keyCode==87? -1: e.keyCode==40||e.keyCode==83? 1 : false;
+        var currentPlayer = e.keyCode==91||e.keyCode==39? this.rightPlayer : e.keyCode==119||e.keyCode==115? this.leftPlayer : false;
+        var direction = e.keyCode==91||e.keyCode==119? -1: e.keyCode==39||e.keyCode==115? 1 : false;
         if(!currentPlayer&&!direction)
             return;
         if (currentPlayer.y > 0 && direction == -1 || currentPlayer.y + currentPlayer.height < this.game.height && direction == 1) {
@@ -146,7 +151,7 @@ Game.prototype = {
     },
 
     startNewRound: function (loserPlayer){
-        this.leftPlayer.y = this.rightPlayer.y= this.game.height / 2 -  this.heightPlayer/2;
+        this.leftPlayer.y = this.rightPlayer.y= this.game.height / 2 -  this.playerHeight/2;
         this.ball.y = this.game.height / 2;
         if (loserPlayer == this.leftPlayer) {
             this.ball.x = this.beginBallX;
@@ -170,6 +175,18 @@ TextFactory.drawText = function (context, textValue, x, y) {
 
 TextFactory.setFont = function(context, value) {
     context.font = value;
+};
+
+TextFactory.setColor = function(context, value) {
+    context.fillStyle = value;
+};
+
+TextFactory.setVerticalAlign= function(context, value) {
+    context.textBaseline = value;
+};
+
+TextFactory.setTextAlign= function(context, value) {
+    context.textAlign = value;
 }
 
 
