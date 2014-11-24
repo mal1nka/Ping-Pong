@@ -76,6 +76,8 @@ Game.prototype = {
         this.ball.stepSpeed = 2;
         this.ball.stepX = this.ball.stepSpeed;
         this.ball.stepY = this.ball.stepSpeed;
+        this.leftPlayer.canMove = false;
+        this.rightPlayer.canMove = true;
     },
     setupEventListener: function () {
         document.body.onkeypress = this.startPlayerMove.bind(this);
@@ -103,16 +105,18 @@ Game.prototype = {
 
     startPlayerMove: function (e) {
         var currentPlayer = e.keyCode==91||e.keyCode==39? this.rightPlayer : e.keyCode==119||e.keyCode==115? this.leftPlayer : false;
+
         var direction = e.keyCode==91||e.keyCode==119? -1: e.keyCode==39||e.keyCode==115? 1 : false;
         if(!currentPlayer&&!direction)
             return;
-        if (currentPlayer.y > 0 && direction == -1 || currentPlayer.y + currentPlayer.height < this.game.height && direction == 1) {
+        if (currentPlayer.canMove && (currentPlayer.y > 0 && direction == -1 || currentPlayer.y + currentPlayer.height < this.game.height && direction == 1)) {
             currentPlayer.y = currentPlayer.y + direction * this.playerMoveStep;
         }
         this.drawGame();
     },
 
     updateBallCords: function () {
+
         // Move to y
         if (this.ball.y - this.ball.radius <= 0 || this.ball.y+this.ball.radius >= this.game.height) {
             this.ball.stepY= -this.ball.stepY;
@@ -131,6 +135,14 @@ Game.prototype = {
         //collision with player
         if ( (this.collision(this.leftPlayer, this.ball)&& this.ball.stepX <0 )  || (this.collision(this.rightPlayer, this.ball)&& this.ball.stepX>0 )  ) {
             this.ball.stepX = -this.ball.stepX;
+            if (this.rightPlayer.canMove) {
+                this.leftPlayer.canMove = true;
+                this.rightPlayer.canMove = false;
+            }
+            else {
+                this.leftPlayer.canMove = false;
+                this.rightPlayer.canMove = true;
+            }
         }
 
         this.ball.x += this.ball.stepX;
@@ -157,8 +169,12 @@ Game.prototype = {
             this.ball.x = this.beginBallX;
             this.ball.y = this.game.height / 2;
             this.ball.stepX=this.ball.stepY=this.ball.stepSpeed;
+            this.leftPlayer.canMove = false;
+            this.rightPlayer.canMove = true;
         }
         else {
+            this.leftPlayer.canMove = true;
+            this.rightPlayer.canMove = false;
             this.ball.x = this.game.width - this.beginBallX;
             this.ball.stepX=this.ball.stepY=-this.ball.stepSpeed;
         }
