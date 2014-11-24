@@ -53,6 +53,7 @@ Game.prototype = {
     refreshSequence: 10,
     ballRadius: 10,
     beginBallX : 40,
+    pause: true,
 
     init: function () {
         var canvas = document.getElementById("pong");
@@ -101,9 +102,25 @@ Game.prototype = {
         this.rightPlayer.draw();
         this.ball.draw();
 
+        TextFactory.setFont(this.context, 'bold 30px courier');
+        TextFactory.setTextAlign(this.context,'center');
+        TextFactory.setVerticalAlign(this.context, 'middle');
+        TextFactory.setColor(this.context, 'red');
+        TextFactory.drawText(this.context, "Press Space to start", this.game.width/2 , this.game.height/2);
+
     },
 
     startPlayerMove: function (e) {
+        if (e.keyCode==32) {
+            if(this.pause==true) {
+                console.log ("start");
+                this.pause=false;
+            }
+            else {
+                console.log ("stop");
+                this.pause=true;
+            }
+        }
         var currentPlayer = e.keyCode==91||e.keyCode==39? this.rightPlayer : e.keyCode==119||e.keyCode==115? this.leftPlayer : false;
 
         var direction = e.keyCode==91||e.keyCode==119? -1: e.keyCode==39||e.keyCode==115? 1 : false;
@@ -116,38 +133,38 @@ Game.prototype = {
     },
 
     updateBallCords: function () {
-
-        // Move to y
-        if (this.ball.y - this.ball.radius <= 0 || this.ball.y+this.ball.radius >= this.game.height) {
-            this.ball.stepY= -this.ball.stepY;
-        }
-
-        // Move to x
-        if (this.ball.x-this.ball.radius <= 0) {
-            this.rightPlayer.scores ++;
-            this.startNewRound(this.leftPlayer);
-        }
-        if (this.ball.x+this.ball.radius >= this.game.width) {
-            this.leftPlayer.scores ++;
-            this.startNewRound(this.rightPlayer);
-        }
-
-        //collision with player
-        if ( (this.collision(this.leftPlayer, this.ball)&& this.ball.stepX <0 )  || (this.collision(this.rightPlayer, this.ball)&& this.ball.stepX>0 )  ) {
-            this.ball.stepX = -this.ball.stepX;
-            if (this.rightPlayer.canMove) {
-                this.leftPlayer.canMove = true;
-                this.rightPlayer.canMove = false;
+        if (this.pause == false) {
+            // Move to y
+            if (this.ball.y - this.ball.radius <= 0 || this.ball.y+this.ball.radius >= this.game.height) {
+                this.ball.stepY= -this.ball.stepY;
             }
-            else {
-                this.leftPlayer.canMove = false;
-                this.rightPlayer.canMove = true;
+
+            // Move to x
+            if (this.ball.x-this.ball.radius <= 0) {
+                this.rightPlayer.scores ++;
+                this.startNewRound(this.leftPlayer);
             }
+            if (this.ball.x+this.ball.radius >= this.game.width) {
+                this.leftPlayer.scores ++;
+                this.startNewRound(this.rightPlayer);
+            }
+
+            //collision with player
+            if ( (this.collision(this.leftPlayer, this.ball)&& this.ball.stepX <0 )  || (this.collision(this.rightPlayer, this.ball)&& this.ball.stepX>0 )  ) {
+                this.ball.stepX = -this.ball.stepX;
+                if (this.rightPlayer.canMove) {
+                    this.leftPlayer.canMove = true;
+                    this.rightPlayer.canMove = false;
+                }
+                else {
+                    this.leftPlayer.canMove = false;
+                    this.rightPlayer.canMove = true;
+                }
+            }
+
+            this.ball.x += this.ball.stepX;
+            this.ball.y += this.ball.stepY;
         }
-
-        this.ball.x += this.ball.stepX;
-        this.ball.y += this.ball.stepY;
-
     },
 
     play: function () {
@@ -163,6 +180,7 @@ Game.prototype = {
     },
 
     startNewRound: function (loserPlayer){
+        this.pause=true;
         this.leftPlayer.y = this.rightPlayer.y= this.game.height / 2 -  this.playerHeight/2;
         this.ball.y = this.game.height / 2;
         if (loserPlayer == this.leftPlayer) {
@@ -178,6 +196,7 @@ Game.prototype = {
             this.ball.x = this.game.width - this.beginBallX;
             this.ball.stepX=this.ball.stepY=-this.ball.stepSpeed;
         }
+
     }
 };
 
