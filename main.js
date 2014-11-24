@@ -1,4 +1,4 @@
-﻿function Base(color, x, y, canvasContext) {
+﻿﻿function Base(color, x, y, canvasContext) {
     this.x = x;
     this.y = y;
     this.color = color;
@@ -62,18 +62,16 @@ Game.prototype = {
         this.context = canvas.getContext('2d');
         this.initGameObjects();
         this.setupEventListener();
-        setInterval(this.play.bind(this), this.refreshSequence);
+        this.intervalId = setInterval(this.play.bind(this), this.refreshSequence);
     },
     initGameObjects: function () {
         this.game = new Rectangle("#000", 0, 0, this.width, this.height, this.context);
         this.playerMoveStep = this.game.height/this.playerStepFactor;
         this.leftPlayer = new Rectangle("#fff", this.playerIndentX, this.game.height / 2 -  this.playerHeight/2, this.playerWidth, this.playerHeight, this.context);
-        console.log (this.leftPlayer );
         this.rightPlayer = new Rectangle("#fff", this.game.width -this.playerIndentX- this.playerWidth, this.game.height / 2 -  this.playerHeight/2, this.playerWidth, this.playerHeight, this.context);
         this.leftPlayer.scores = 0;
         this.rightPlayer.scores = 0;
         this.ball = new Ball("#fff", this.beginBallX, this.game.height / 2, this.ballRadius, this.context);
-        console.log (this.ball );
         this.ball.stepSpeed = 2;
         this.ball.stepX = this.ball.stepSpeed;
         this.ball.stepY = this.ball.stepSpeed;
@@ -101,18 +99,18 @@ Game.prototype = {
         this.leftPlayer.draw();
         this.rightPlayer.draw();
         this.ball.draw();
-
-        TextFactory.setFont(this.context, 'bold 30px courier');
-        TextFactory.setTextAlign(this.context,'center');
-        TextFactory.setVerticalAlign(this.context, 'middle');
-        TextFactory.setColor(this.context, 'red');
-        TextFactory.drawText(this.context, "Press Space to start", this.game.width/2 , this.game.height/2);
+        if(this.pause) {
+            TextFactory.setFont(this.context, 'bold 30px courier');
+            TextFactory.setVerticalAlign(this.context, 'middle');
+            TextFactory.setColor(this.context, 'red');
+            TextFactory.drawText(this.context, "Press Space to start", this.game.width/2 , this.game.height/2);
+        }
 
     },
 
     startPlayerMove: function (e) {
         if (e.keyCode==32) {
-            if(this.pause==true) {
+            if(this.pause) {
                 console.log ("start");
                 this.pause=false;
             }
