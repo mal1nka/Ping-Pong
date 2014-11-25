@@ -164,8 +164,8 @@ Game.prototype = {
     },
 
     play: function () {
-        this.drawGame(); // отрисовываем всё на холсте
-        this.updateBallCords(); // обновляем координаты
+        this.drawGame();
+        this.updateBallCords();
     },
 
     collision: function(barrier, ball) {
