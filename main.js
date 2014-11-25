@@ -176,6 +176,7 @@ Game.prototype = {
     },
 
     startNewRound: function (loserPlayer){
+        this.flagNewRound = true;
         this.pause=true;
         this.leftPlayer.y = this.rightPlayer.y= this.game.height / 2 -  this.playerHeight/2;
         this.ball.y = this.game.height / 2;
