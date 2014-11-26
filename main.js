@@ -54,7 +54,8 @@ Game.prototype = {
     ballRadius: 10,
     beginBallX : 40,
     pause: true,
-    flagNewRound: true,
+    isNewRound: true,
+    isGameRunning: false,
 
     init: function () {
         var canvas = document.getElementById("pong");
@@ -63,7 +64,10 @@ Game.prototype = {
         this.context = canvas.getContext('2d');
         this.initGameObjects();
         this.setupEventListener();
+        this.drawGame();
+        this.updateBallCords();
         this.intervalId = setInterval(this.play.bind(this), this.refreshSequence);
+
     },
     initGameObjects: function () {
         this.game = new Rectangle("#000", 0, 0, this.width, this.height, this.context);
@@ -78,6 +82,7 @@ Game.prototype = {
         this.ball.stepY = this.ball.stepSpeed;
         this.leftPlayer.canMove = true;
         this.rightPlayer.canMove = false;
+
     },
     setupEventListener: function () {
         document.body.onkeypress = this.startPlayerMove.bind(this);
@@ -101,21 +106,23 @@ Game.prototype = {
         this.rightPlayer.draw();
         this.ball.draw();
         if(this.pause) {
-            TextFactory.setFont(this.context, 'bold 30px courier');
-            TextFactory.setVerticalAlign(this.context, 'middle');
-            TextFactory.setColor(this.context, 'red');
-            TextFactory.drawText(this.context, "Press Space to start", this.game.width/2 , this.game.height/2);
+            this.drawFieldSeparation();
         }
 
     },
-
+    drawFieldSeparation: function(){
+        TextFactory.setFont(this.context, 'bold 30px courier');
+        TextFactory.setVerticalAlign(this.context, 'middle');
+        TextFactory.setColor(this.context, 'red');
+        TextFactory.drawText(this.context, "Press Space to start", this.game.width/2 , this.game.height/2);
+    },
     startPlayerMove: function (e) {
         if (e.keyCode==32) {
-            this.pause = this.pause ? false : true;
-            if (this.flagNewRound) {
+            this.pause = !this.pause;
+            if (this.isNewRound) {
                 this.leftPlayer.canMove = false;
                 this.rightPlayer.canMove = true;
-                this.flagNewRound = false;
+                this.isNewRound = false;
             }
         }
         var currentPlayer = e.keyCode==91||e.keyCode==39? this.rightPlayer : e.keyCode==119||e.keyCode==115? this.leftPlayer : false;
@@ -123,7 +130,7 @@ Game.prototype = {
         var direction = e.keyCode==91||e.keyCode==119? -1: e.keyCode==39||e.keyCode==115? 1 : false;
         if(!currentPlayer&&!direction)
             return;
-        if ((!this.pause || this.flagNewRound)&& currentPlayer.canMove && (currentPlayer.y > 0 && direction == -1 || currentPlayer.y + currentPlayer.height < this.game.height && direction == 1)) {
+        if ((!this.pause || this.isNewRound)&& currentPlayer.canMove && (currentPlayer.y > 0 && direction == -1 || currentPlayer.y + currentPlayer.height < this.game.height && direction == 1)) {
             currentPlayer.y = currentPlayer.y + direction * this.playerMoveStep;
         }
         this.drawGame();
@@ -164,8 +171,15 @@ Game.prototype = {
     },
 
     play: function () {
-        this.drawGame();
-        this.updateBallCords();
+        if (!this.pause) {
+            this.drawGame();
+            this.updateBallCords();
+            this.isGameRunning = true;
+        }
+        else if (this.pause && this.isGameRunning){
+            this.drawFieldSeparation();
+            this.isGameRunning = false
+        }
     },
 
     collision: function(barrier, ball) {
@@ -176,7 +190,7 @@ Game.prototype = {
     },
 
     startNewRound: function (loserPlayer){
-        this.flagNewRound = true;
+        this.isNewRound = true;
         this.pause=true;
         this.leftPlayer.y = this.rightPlayer.y= this.game.height / 2 -  this.playerHeight/2;
         this.ball.y = this.game.height / 2;
@@ -189,6 +203,8 @@ Game.prototype = {
             this.ball.x = this.game.width - this.beginBallX;
             this.ball.stepX=this.ball.stepY=-this.ball.stepSpeed;
         }
+        this.drawGame();
+        this.updateBallCords();
 
     }
 };
