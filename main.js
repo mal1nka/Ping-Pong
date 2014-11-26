@@ -132,6 +132,10 @@ Game.prototype = {
             return;
         if ((!this.pause || this.isNewRound)&& currentPlayer.canMove && (currentPlayer.y > 0 && direction == -1 || currentPlayer.y + currentPlayer.height < this.game.height && direction == 1)) {
             currentPlayer.y = currentPlayer.y + direction * this.playerMoveStep;
+            console.log (this.ball.x)
+            if (this.isNewRound){
+                this.ball.y = this.ball.y+direction * this.playerMoveStep;
+            }
         }
         this.drawGame();
     },
