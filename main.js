@@ -50,7 +50,7 @@ Game.prototype = {
     playerIndentX: 10,
     playerWidth : 20,
     playerHeight : 80,
-    refreshSequence: 10,
+    refreshSequence: 5,
     ballRadius: 10,
     beginBallX : 40,
     pause: true,
@@ -65,7 +65,7 @@ Game.prototype = {
         this.initGameObjects();
         this.setupEventListener();
         this.drawGame();
-        this.updateBallCords();
+       // this.updateBallCords();
         this.intervalId = setInterval(this.play.bind(this), this.refreshSequence);
 
     },
@@ -120,8 +120,8 @@ Game.prototype = {
         if (e.keyCode==32) {
             this.pause = !this.pause;
             if (this.isNewRound) {
-                this.leftPlayer.canMove = false;
-                this.rightPlayer.canMove = true;
+                this.leftPlayer.canMove = !this.leftPlayer.canMove ;
+                this.rightPlayer.canMove = !this.rightPlayer.canMove;
                 this.isNewRound = false;
             }
         }
@@ -132,8 +132,7 @@ Game.prototype = {
             return;
         if ((!this.pause || this.isNewRound)&& currentPlayer.canMove && (currentPlayer.y > 0 && direction == -1 || currentPlayer.y + currentPlayer.height < this.game.height && direction == 1)) {
             currentPlayer.y = currentPlayer.y + direction * this.playerMoveStep;
-            console.log (this.ball.x)
-            if (this.isNewRound){
+              if (this.isNewRound){
                 this.ball.y = this.ball.y+direction * this.playerMoveStep;
             }
         }
@@ -208,7 +207,6 @@ Game.prototype = {
             this.ball.stepX=this.ball.stepY=-this.ball.stepSpeed;
         }
         this.drawGame();
-        this.updateBallCords();
 
     }
 };
