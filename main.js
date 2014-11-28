@@ -29,7 +29,6 @@ function Ball(color, x, y, radius, canvasContext) {
 
 }
 
-
 Ball.prototype.draw = function () {
     Base.prototype.draw.call(this);
     this.canvasContext.beginPath();
