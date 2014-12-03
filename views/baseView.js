@@ -11,6 +11,7 @@
 function BaseView(canvasContext, model) {
     this.canvasContext = canvasContext;
     this.model = model || null;
+    this.test = false;
 }
 
 var p = BaseView.prototype;

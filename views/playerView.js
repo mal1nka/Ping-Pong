@@ -10,10 +10,10 @@ var p = PlayerView.prototype = BaseView.prototype;
 
 p.initialize = function() {
     console.log('PlayerModel init');
-    this.draw();
+//    this.draw();
 };
 
 p.draw = function() {
-    BaseView.draw.call(this);
+    BaseView.prototype.draw.call(this);
     this.canvasContext.fillRect(this.model.get('x'), this.model.get('y'), this.model.get('width'), this.model.get('height'));
 };
