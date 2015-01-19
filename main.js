@@ -15,17 +15,23 @@ function Rectangle(color, x, y, width, height, canvasContext) {
     this.width = width;
     this.height = height;
     Base.call(this, color, x, y, canvasContext);
-
+    console.log(this)
 }
 
 Rectangle.prototype.draw = function () {
+    console.log('+++draw+++');
     Base.prototype.draw.call(this);
     this.canvasContext.fillRect(this.x, this.y, this.width, this.height);
+};
+
+Rectangle.prototype.rectangle = function() {
+
 };
 
 function Ball(color, x, y, radius, canvasContext) {
     this.radius = radius;
     Base.call(this, color, x, y, canvasContext);
+    console.log(this)
 
 }
 
@@ -37,6 +43,10 @@ Ball.prototype.draw = function () {
     this.canvasContext.lineWidth = 1;
     this.canvasContext.strokeStyle = this.color;
     this.canvasContext.stroke();
+};
+
+Ball.prototype.ball = function() {
+
 };
 
 function Game(height, width) {
